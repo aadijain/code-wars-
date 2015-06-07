@@ -1,0 +1,238 @@
+#include <iostream>
+#include <stdio.h>
+
+using namespace std;
+
+class Pieces
+{
+   public:
+    char face;
+    int type;
+    int prevm;
+    int piece_x[20];
+    int piece_y[20];
+    int nop;
+}P[25];
+
+int R,C,M;
+int currtype
+char moves[100][2];
+char Array[100][100];
+int goal_x,goal_y;
+int NOP,NOM;
+
+void initialize()
+{
+    R=C=M=goal_x=goal_y=-1;
+    NOP=NOM=0;
+    for(int i=0; i<100; i++)
+    {
+        moves[i][0]=moves[i][1]=' ';
+        for(int j=0; j<100; j++)
+            Array[i][j]=' ';
+    }
+}
+int covered()
+{
+    if(Array[goal_x][goal_y]!='X')
+        return 1;
+    return 0;
+}
+
+void printArray()
+{
+    int i,j;
+    cout<<"\n";
+    for(i=0;i<C;i++)
+    {
+        for(j=0;j<R;j++)
+            cout<<Array[i][j]<<" ";
+        cout<<"\n";
+    }
+}
+void printmoves()
+{
+    cout<<"\n";
+    for(int i=0;i<NOM;i++)
+        cout<<moves[i][0]<<moves[i][1]<<" ";
+}
+
+void add(Pieces &p,int m)
+{
+    moves[NOM][0]=p.face;
+    if(m==1 && p.type==1)
+        moves[NOM][1]='D';
+    else if(m==-1 && p.type==1)
+        moves[NOM][1]='U';
+    else if (m==1 && p.type==0)
+        moves[NOM][1]='R';
+    else
+        moves[NOM][1]='L';
+    NOM++;
+}
+
+void rem()
+{
+    NOM--;
+    moves[NOM][0]=moves[NOM][1]=' ';
+}
+
+void update()
+{
+    int i,j,k;
+    for(i =0; i<C; i++)
+        {for(j =0; j<R; j++)
+            {if(Array[i][j]!='X')
+                Array[i][j]='.';}}
+    for(i=0;i<NOP;i++)
+        {for(j=0;j<P[i].nop;j++)
+            Array[P[i].piece_x[j]][P[i].piece_y[j]]=P[i].face;}
+}
+
+void execute(Pieces &p, int m)
+{
+    p.prevm=m;
+
+    char t;
+    if(p.type==0)
+        {for(int i=0;i<p.nop;i++)
+            p.piece_y[i]+=m;}
+    else
+        {for(int i=0;i<p.nop;i++)
+            p.piece_x[i]+=m;}
+
+    update();
+    printArray();
+    cout<<"$"<<NOM<<" "<<moves[(NOM-1)][0]<<moves[(NOM-1)][1]<<"$\n";
+    cin>>t;
+
+}
+
+int isvalid(Pieces &p, int m)
+{
+    if(p.prevm==-m)
+        return 0;
+    if(p.type==1)
+        {for (int i = 0; i<p.nop; i++)
+            if (!(p.piece_x[i]+m>=0
+                and p.piece_x[i]+m<R
+                and(Array[p.piece_x[i] +m][p.piece_y[i]] == '.'
+                or Array[p.piece_x[i] +m][p.piece_y[i]] == p.face )))
+                {
+                    return 0;
+                }}
+    else
+        {for (int i = 0; i<p.nop; i++)
+            if (!(p.piece_y[i]+m>=0
+                and p.piece_y[i]+m<C
+                and (Array[p.piece_x[i]][p.piece_y[i] + m] == '.'
+                or Array[p.piece_x[i]][p.piece_y[i] + m] == p.face )))
+                {
+                    return 0;
+                }}
+    return 1;
+}
+
+int DFS(int Depth)
+{
+    int val;
+    cout<<"#"<<Depth<<"#\n";
+    if ((Depth==M)&&(covered()))
+    {
+        cout<<"Success!!\n";
+        return 1; ///Success
+    }
+    if ((Depth==M)&& (!covered()))
+    {
+        cout<<"Temporary Failure!!\n";
+        return 0;///Failure
+    }
+    for (int i =0; i<NOP; i++)
+    {
+        cout<<"*"<<i<<" "<<P[i].face<<" "<<P[i].nop<<" "<<P[i].prevm<<"*\n";
+        cout<<"@"<<isvalid(P[i],1)<<" "<<isvalid(P[i],-1)<<"@\n";
+        if (isvalid(P[i],1))
+        {
+            cout<<"----------\n";
+            execute(P[i],1);
+            add(P[i],1);
+            val = DFS(Depth+1);
+            if (val)
+                return 1;
+           cout<<"++++++++++\n";
+            execute(P[i],-1);
+            rem();
+        }
+        else if (isvalid(P[i],-1))
+        {
+           cout<<"----------\n";
+            execute(P[i],-1);
+            add(P[i],-1);
+            val = DFS(Depth+1);
+            if (val)
+                return 1;
+            cout<<"++++++++++\n";
+            execute(P[i],1);
+            rem();
+        }
+        if(i+1!=NOP && P[i+1].type!=P[i].type)
+            prevm=0;
+    }
+    return 0;
+}
+
+int main()
+{
+       int check;
+       initialize();
+       cin>>R>>C>>M;
+       for (int i = 0;i<C; i++)
+            for (int j = 0; j<R; j++)
+                cin>>Array[i][j];
+
+       for (int i =0; i<C; i++)
+       {
+           for (int j = 0; j<R; j++)
+           {
+
+               if(Array[i][j]=='X')
+               {
+                   goal_x=i;
+                   goal_y=j;
+               }
+               else if (Array[i][j]!='.')
+               {
+                    check=1;
+                    for (int k = 0; k<NOP; k++)
+                    {
+                        if (Array[i][j] == P[k].face)
+                        {
+                            check=0;
+                            P[k].piece_x[P[k].nop] = i;
+                            P[k].piece_y[P[k].nop] = j;
+                            P[k].nop++;
+                        }
+                    }
+                    if (check)
+                    {
+                        P[NOP].face = Array[i][j];
+                        if (isalpha(Array[i][j]))
+                            P[NOP].type = 1;
+                        else
+                            P[NOP].type = 0;
+                        P[NOP].piece_x[P[NOP].nop] = i;
+                        P[NOP].piece_y[P[NOP].nop] = j;
+                        P[NOP].nop++;
+                        NOP++;
+                    }
+                }
+           }
+       }
+    printArray();
+    //execute(P[2],1);
+    check=DFS(0);
+    cout<<"Result: "<<check;
+    printArray();
+    printmoves();
+    return 0;
+}
