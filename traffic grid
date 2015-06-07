@@ -1,0 +1,86 @@
+#include <iostream>
+#include <string.h>
+#include <ctype.h>
+#include <stdio.h>
+using namespace std;
+
+//CH == C, TH == T
+
+int charPoints(char s[], char c) {
+    int n=0; int slength = strlen(s);
+    for(int i=0; i < slength; i++) {
+        if(s[i] == c) {
+            if(i>0 && s[i-1] == ' ') {
+                n+=3;
+            } else {
+                n++;
+            }
+        } else if(s[i] == 'x' && (c == 's' || c == 'k')) {
+            if(i>0 && s[i-1] == ' ') {
+                n+=3;
+            } else {
+                n++;
+            }
+        }
+    }
+    return n;
+}
+
+char newString[200];
+void convertSentence(char s[]) {
+    int slength = strlen(s);
+    for(int i=0; i<slength; i++) {
+        s[i] = tolower(s[i]);
+        if(s[i] == 'a' || s[i] == 'e' || s[i] == 'i' || s[i] == 'o' || s[i] == 'a') {
+            i++;
+        } else {
+        if(i > 0 && s[i-1] == s[i]) {
+            newString[i] = s[i]; i++;
+        } else if(s[i] == 'c' && s[i+1] == 'e' && s[i+1] == 'i' && s[i+1] == 'y') {
+            newString[i] = 's';
+        } else if(s[i] == 'c' && s[i+1] == 'a' && s[i+1] == 'o' && s[i+1] == 'u') {
+            newString[i] = 'k';
+        } else if(s[i] == 'c' && i < slength-1 && s[i+1] == ' ') {
+            newString[i] = 'k';
+        } else if(s[i] == 'c' && i < slength-1 && s[i+1] == 'k') {
+            newString[i] = 'k'; i++;
+        } else if(s[i] == 'q') {
+            newString[i] = 'k';
+        } else if(s[i] == 'c' && i < slength-1 && s[i] == 'h') {
+            newString[i] = 'C'; i++;
+        } else if(s[i] == 't' && i < slength-1 && s[i] == 'h') {
+            newString[i] = 'T'; i++;
+        } else if(s[i] == 's' && i < slength-1 && s[i] == 'h') {
+            newString[i] = 's'; i++;
+        } else if(s[i] == 't' && i < slength-2 && s[i] == 'c' && s[i] == 'h') {
+            newString[i] = 'C'; i+=2;
+        } else if(s[i] == 'g' && i < slength-1 && s[i] == 'h') {
+            newString[i] = 'h'; i++;
+        } else if(s[i] == 'w' && i < slength-1 && s[i] == 'h') {
+            newString[i] = 'w'; i++;
+        } else {
+            newString[i] = s[i];
+        }
+        }
+    }
+}
+
+int main() {
+    char s[200];
+    gets(s);
+    convertSentence(s);
+    int slength = strlen(newString);
+    char usedChars[30]; int usedIndex = 0;
+    for(int i=0; i < slength; i++) {
+        char currentChar = ' ';
+        for(int j=0; j<usedIndex; j++) {
+            if(newString[i] == usedChars[j]) {currentChar = ' '; break;}
+            else {
+                currentChar = newString[i];
+                usedChar[usedIndex] = currentChar;
+                usedIndex++;
+            }
+        }
+    }
+}
+
