@@ -1,0 +1,28 @@
+#include <iostream>
+using namespace std;
+
+int a[3] = {0,0,0};
+int addPepper(int x) {
+    if(x < 0) { return false; }
+    else if(x==0) return true;
+    bool check = false;
+    if(!check) {
+        check = addPepper(x-13);
+        if(check) a[2]++;
+    }
+    if(!check) {
+        check = addPepper(x-11);
+        if(check) a[1]++;
+    }
+    if(!check) {
+        check = addPepper(x-6);
+        if(check) a[0]++;
+    }
+    return check;
+}
+
+int main() {
+    bool check = addPepper(55);
+    if(check) for(int i=2; i>=0; i--) {cout << a[i] << " ";}
+    else cout << "AIN't happening bro";
+}
